@@ -1,0 +1,69 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: api
+    volumes:
+      - ./api:/var/www
+    working_dir: /var/www
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - api
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./api:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - api
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+      MYSQL_DATABASE: 
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - api
+
+  redis:
+    image: redis:7.2.4
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --requirepass 
+    networks:
+      - api
+  vue-app:
+    build:
+      context: .
+      dockerfile: docker/vue/Dockerfile
+    container_name: vue
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./interface:/usr/src/app
+    environment:
+      - NODE_ENV=development
+volumes:
+  dbdata:
+  redis-data:
+
+networks:
+  api:
+    driver: bridge
