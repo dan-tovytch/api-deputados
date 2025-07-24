@@ -66,5 +66,33 @@ class DeputadosController extends Controller
         }
     }
 
+    public function search(Request $request)
+    {
+        try {
+            $term = $request->input("search");
 
+            $results = Deputados::where('nomeCivil', 'LIKE', "%{$term}%")
+                ->orWhere('nomeEleitoral', 'LIKE', "%{$term}%")
+                ->get();
+
+            if(!$results) {
+                return response()->json([
+                    "error" => true,
+                    "message" => "Deputado não encontrado",
+                ], 404);
+            }
+
+            return response()->json([
+                "error" => false,
+                "message" => "Sucesso",
+                "data" => $results,
+            ]);
+        } catch (Exception $e) {
+            Log::error("Erro ao buscar deputado: " . $e->getMessage());
+            return response()->json([
+                "error" => true,
+                "message" => "Erro interno. Tente novamente"
+            ], 500);
+        }
+    }
 }
