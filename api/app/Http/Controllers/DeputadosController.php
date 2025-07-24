@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Deputados;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use App\Models\RankingDespesa;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Jobs\ProcessDeputadosInfoJob;
-use Exception;
+
+use function Laravel\Prompts\error;
 
 class DeputadosController extends Controller
 {
@@ -47,38 +50,7 @@ class DeputadosController extends Controller
     public function ranking()
     {
         try {
-            $ranking = DB::table('despesas')
-                        ->join('deputados', 'deputados.id', '=', 'despesas.id_deputado')
-                        ->select(
-                            "deputados.nomeEleitoral",
-                            "deputados.nomeCivil",
-                            "deputados.emailGabinete",
-                            "deputados.telefoneGabinete",
-                            "deputados.sexo",
-                            "deputados.escolaridade",
-                            "deputados.dataNascimento",
-                            "deputados.siglaPartido",
-                            "deputados.siglaUf",
-                            "deputados.urlFoto",
-                            "deputados.redeSocial",
-                            DB::raw("SUM(valorLiquido) as total")
-                        )
-                        ->groupBy(
-                            'deputados.id',
-                            'deputados.nomeEleitoral',
-                            'deputados.nomeCivil',
-                            'deputados.emailGabinete',
-                            'deputados.telefoneGabinete',
-                            'deputados.sexo',
-                            'deputados.escolaridade',
-                            'deputados.dataNascimento',
-                            'deputados.siglaPartido',
-                            'deputados.siglaUf',
-                            'deputados.urlFoto',
-                            'deputados.redeSocial'
-                        )
-                        ->orderByDesc('total')
-                        ->paginate(10);
+            $ranking = RankingDespesa::orderByDesc('total')->get();
 
             return response()->json([
                 "error" => false,
@@ -93,4 +65,6 @@ class DeputadosController extends Controller
             ], 500);
         }
     }
+
+
 }
