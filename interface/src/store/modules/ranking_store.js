@@ -11,11 +11,15 @@ export const useRankingStore = defineStore("ranking", {
     async FETCH_RANKING() {
       try {
         const response = await ranking.get_ranking();
-        if (response.data && response.data.data && Array.isArray(response.data.data.data)) {
-        this.data_ranking = response.data.data.data
+        if (
+          response.data &&
+          response.data.data &&
+          Array.isArray(response.data.data)
+        ) {
+          this.data_ranking = response.data.data; 
         } else {
-        console.error('Resposta não tem o array esperado:', response.data)
-        this.data_ranking = []
+          console.error("Resposta não tem o array esperado:", response.data);
+          this.data_ranking = [];
         }
       } catch (error) {
         console.error("Erro ao buscar o ranking");
