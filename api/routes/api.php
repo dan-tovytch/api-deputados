@@ -10,4 +10,5 @@ Route::get('/user', function (Request $request) {
 
 Route::prefix("deputados")->group(function () {
     Route::get("/ranking", [DeputadosController::class, 'ranking'])->name("ranking.deputados");
+    Route::get("/search", [DeputadosController::class, 'search'])->name("search.deputados");
 });
